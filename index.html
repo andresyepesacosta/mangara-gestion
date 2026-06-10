@@ -393,28 +393,6 @@
     margin-top: 0.5rem;
   }
 
-  /* ── CONFIG BAR ── */
-  .config-bar {
-    background: var(--sand);
-    padding: 0.75rem 1.5rem;
-    display: flex;
-    align-items: center;
-    gap: 0.75rem;
-    flex-wrap: wrap;
-    font-size: 0.82rem;
-    border-bottom: 1px solid var(--gray-light);
-  }
-  .config-bar label { font-weight: 600; color: var(--gray); }
-  .config-bar input {
-    flex: 1;
-    min-width: 200px;
-    padding: 0.4rem 0.6rem;
-    border: 1.5px solid var(--gray-light);
-    border-radius: 6px;
-    font-size: 0.82rem;
-    font-family: inherit;
-  }
-
   @media (max-width: 600px) {
     .form-grid { grid-template-columns: 1fr; }
     .product-row { grid-template-columns: 1fr 1fr; }
@@ -433,14 +411,6 @@
   <h1>🥭 <span>Mangara</span> · Gestión</h1>
   <span class="header-status" id="connStatus">Sin conectar</span>
 </header>
-
-<!-- CONFIG BAR -->
-<div class="config-bar">
-  <label>URL del Script:</label>
-  <input type="text" id="scriptUrl" placeholder="Pega aquí la URL de tu Google Apps Script desplegado">
-  <button class="btn btn-primary btn-sm" onclick="saveConfig()">Guardar</button>
-  <button class="btn btn-ghost btn-sm" onclick="testConnection()">Probar</button>
-</div>
 
 <!-- TAB NAV -->
 <nav class="tab-nav">
@@ -813,20 +783,9 @@
 // ════════════════════════════════════════
 // CONFIG & STATE
 // ════════════════════════════════════════
-let SCRIPT_URL = localStorage.getItem('mangara_script_url') || '';
+const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbxfUS9HL2XOT2sDFDjnyPBkg2_FM9VoCkpv7pal0GSLU5D8Lgah4l94NCc6X4oZ5NbN_Q/exec';
 let ventasData = [];
 let finanzasData = [];
-
-function saveConfig() {
-  SCRIPT_URL = document.getElementById('scriptUrl').value.trim();
-  localStorage.setItem('mangara_script_url', SCRIPT_URL);
-  toast('URL guardada', 'success');
-}
-
-function loadConfig() {
-  document.getElementById('scriptUrl').value = SCRIPT_URL;
-  if (SCRIPT_URL) testConnection();
-}
 
 async function testConnection() {
   if (!SCRIPT_URL) { toast('Configura la URL primero', 'error'); return; }
@@ -1297,7 +1256,7 @@ document.addEventListener('DOMContentLoaded', () => {
   document.getElementById('vFecha').value = new Date().toISOString().split('T')[0];
   document.getElementById('fFecha').value = new Date().toISOString().split('T')[0];
   addProductRow();
-  loadConfig();
+  testConnection();
 });
 </script>
 </body>
