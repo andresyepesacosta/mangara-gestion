@@ -1,0 +1,1304 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Mangara · Gestión</title>
+<style>
+  :root {
+    --green-deep: #2D6A4F;
+    --green-light: #52B788;
+    --green-pale: #D8F3DC;
+    --mango: #F4A261;
+    --coral: #E76F51;
+    --cream: #FEFAE0;
+    --sand: #F5F0E1;
+    --dark: #1B1B1B;
+    --gray: #6B7280;
+    --gray-light: #E5E7EB;
+    --white: #FFFFFF;
+    --radius: 10px;
+    --shadow: 0 2px 12px rgba(0,0,0,0.08);
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+    background: var(--cream);
+    color: var(--dark);
+    min-height: 100vh;
+  }
+
+  /* ── HEADER ── */
+  .header {
+    background: var(--green-deep);
+    color: var(--white);
+    padding: 1rem 1.5rem;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.15);
+  }
+  .header h1 {
+    font-size: 1.4rem;
+    font-weight: 700;
+    letter-spacing: 0.5px;
+  }
+  .header h1 span { color: var(--mango); }
+  .header-status {
+    font-size: 0.75rem;
+    padding: 4px 10px;
+    border-radius: 20px;
+    background: rgba(255,255,255,0.15);
+  }
+  .header-status.connected { background: var(--green-light); color: var(--dark); }
+
+  /* ── TAB NAV ── */
+  .tab-nav {
+    display: flex;
+    background: var(--white);
+    border-bottom: 2px solid var(--gray-light);
+    position: sticky;
+    top: 56px;
+    z-index: 99;
+  }
+  .tab-btn {
+    flex: 1;
+    padding: 0.85rem 1rem;
+    border: none;
+    background: none;
+    font-size: 0.9rem;
+    font-weight: 600;
+    color: var(--gray);
+    cursor: pointer;
+    border-bottom: 3px solid transparent;
+    transition: all 0.2s;
+  }
+  .tab-btn.active {
+    color: var(--green-deep);
+    border-bottom-color: var(--green-deep);
+    background: var(--green-pale);
+  }
+  .tab-btn:nth-child(2).active {
+    color: var(--mango);
+    border-bottom-color: var(--mango);
+    background: #FFF3E0;
+  }
+
+  .tab-content { display: none; padding: 1rem; max-width: 900px; margin: 0 auto; }
+  .tab-content.active { display: block; }
+
+  /* ── CARDS ── */
+  .card {
+    background: var(--white);
+    border-radius: var(--radius);
+    padding: 1.25rem;
+    margin-bottom: 1rem;
+    box-shadow: var(--shadow);
+  }
+  .card-title {
+    font-size: 1rem;
+    font-weight: 700;
+    margin-bottom: 1rem;
+    color: var(--green-deep);
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+  }
+  .card-title.finance-title { color: var(--mango); }
+
+  /* ── STATS ROW ── */
+  .stats-row {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+    gap: 0.75rem;
+    margin-bottom: 1rem;
+  }
+  .stat-card {
+    background: var(--white);
+    border-radius: var(--radius);
+    padding: 1rem;
+    box-shadow: var(--shadow);
+    text-align: center;
+  }
+  .stat-card .stat-value {
+    font-size: 1.5rem;
+    font-weight: 800;
+  }
+  .stat-card .stat-label {
+    font-size: 0.75rem;
+    color: var(--gray);
+    margin-top: 4px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+  }
+  .stat-green .stat-value { color: var(--green-deep); }
+  .stat-orange .stat-value { color: var(--mango); }
+  .stat-red .stat-value { color: var(--coral); }
+  .stat-blue .stat-value { color: #3B82F6; }
+
+  /* ── FORM ── */
+  .form-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 0.75rem;
+  }
+  .form-group { display: flex; flex-direction: column; gap: 4px; }
+  .form-group.full { grid-column: 1 / -1; }
+  .form-group label {
+    font-size: 0.78rem;
+    font-weight: 600;
+    color: var(--gray);
+    text-transform: uppercase;
+    letter-spacing: 0.3px;
+  }
+  .form-group input,
+  .form-group select,
+  .form-group textarea {
+    padding: 0.6rem 0.75rem;
+    border: 1.5px solid var(--gray-light);
+    border-radius: 8px;
+    font-size: 0.9rem;
+    font-family: inherit;
+    transition: border-color 0.2s;
+    background: var(--white);
+  }
+  .form-group input:focus,
+  .form-group select:focus,
+  .form-group textarea:focus {
+    outline: none;
+    border-color: var(--green-deep);
+    box-shadow: 0 0 0 3px rgba(45,106,79,0.1);
+  }
+  .form-group textarea { resize: vertical; min-height: 60px; }
+
+  /* ── BUTTONS ── */
+  .btn {
+    padding: 0.65rem 1.25rem;
+    border: none;
+    border-radius: 8px;
+    font-size: 0.88rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s;
+    font-family: inherit;
+  }
+  .btn-primary {
+    background: var(--green-deep);
+    color: var(--white);
+  }
+  .btn-primary:hover { background: #245A42; }
+  .btn-secondary {
+    background: var(--mango);
+    color: var(--white);
+  }
+  .btn-secondary:hover { background: #E8944F; }
+  .btn-danger {
+    background: var(--coral);
+    color: var(--white);
+  }
+  .btn-danger:hover { background: #D35D41; }
+  .btn-ghost {
+    background: transparent;
+    color: var(--gray);
+    border: 1.5px solid var(--gray-light);
+  }
+  .btn-ghost:hover { background: var(--sand); }
+  .btn-sm { padding: 0.4rem 0.75rem; font-size: 0.8rem; }
+  .btn-row {
+    display: flex;
+    gap: 0.5rem;
+    margin-top: 1rem;
+    flex-wrap: wrap;
+  }
+
+  /* ── TABLE ── */
+  .table-wrap {
+    overflow-x: auto;
+    margin-top: 0.75rem;
+    border-radius: var(--radius);
+    border: 1px solid var(--gray-light);
+  }
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 0.85rem;
+  }
+  th {
+    background: var(--sand);
+    padding: 0.65rem 0.75rem;
+    text-align: left;
+    font-weight: 700;
+    font-size: 0.75rem;
+    text-transform: uppercase;
+    letter-spacing: 0.3px;
+    color: var(--gray);
+    white-space: nowrap;
+  }
+  td {
+    padding: 0.6rem 0.75rem;
+    border-top: 1px solid var(--gray-light);
+    vertical-align: middle;
+  }
+  tr:hover td { background: #FAFAF5; }
+
+  /* ── BADGES ── */
+  .badge {
+    display: inline-block;
+    padding: 3px 10px;
+    border-radius: 20px;
+    font-size: 0.72rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.3px;
+  }
+  .badge-paid { background: var(--green-pale); color: var(--green-deep); }
+  .badge-pending { background: #FEF3C7; color: #92400E; }
+  .badge-yes { background: #DBEAFE; color: #1E40AF; }
+  .badge-no { background: var(--gray-light); color: var(--gray); }
+  .badge-income { background: var(--green-pale); color: var(--green-deep); }
+  .badge-expense { background: #FEE2E2; color: #991B1B; }
+
+  /* ── SEARCH / FILTER ── */
+  .filter-bar {
+    display: flex;
+    gap: 0.5rem;
+    margin-bottom: 0.75rem;
+    flex-wrap: wrap;
+    align-items: center;
+  }
+  .filter-bar input,
+  .filter-bar select {
+    padding: 0.5rem 0.75rem;
+    border: 1.5px solid var(--gray-light);
+    border-radius: 8px;
+    font-size: 0.85rem;
+    font-family: inherit;
+    background: var(--white);
+  }
+  .filter-bar input { flex: 1; min-width: 180px; }
+
+  /* ── MODAL ── */
+  .modal-overlay {
+    display: none;
+    position: fixed;
+    top: 0; left: 0; right: 0; bottom: 0;
+    background: rgba(0,0,0,0.5);
+    z-index: 200;
+    justify-content: center;
+    align-items: flex-start;
+    padding: 2rem 1rem;
+    overflow-y: auto;
+  }
+  .modal-overlay.show { display: flex; }
+  .modal {
+    background: var(--white);
+    border-radius: var(--radius);
+    padding: 1.5rem;
+    width: 100%;
+    max-width: 600px;
+    box-shadow: 0 8px 32px rgba(0,0,0,0.2);
+    animation: slideUp 0.2s ease;
+  }
+  @keyframes slideUp {
+    from { transform: translateY(20px); opacity: 0; }
+    to { transform: translateY(0); opacity: 1; }
+  }
+  .modal-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1rem;
+  }
+  .modal-header h3 { font-size: 1.1rem; color: var(--green-deep); }
+  .modal-close {
+    background: none; border: none; font-size: 1.5rem;
+    cursor: pointer; color: var(--gray); line-height: 1;
+  }
+
+  /* ── TOAST ── */
+  .toast-container {
+    position: fixed;
+    bottom: 1.5rem;
+    right: 1.5rem;
+    z-index: 300;
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+  }
+  .toast {
+    padding: 0.75rem 1.25rem;
+    border-radius: 8px;
+    color: var(--white);
+    font-size: 0.85rem;
+    font-weight: 600;
+    animation: fadeIn 0.3s ease;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+  }
+  .toast-success { background: var(--green-deep); }
+  .toast-error { background: var(--coral); }
+  @keyframes fadeIn {
+    from { opacity: 0; transform: translateX(20px); }
+    to { opacity: 1; transform: translateX(0); }
+  }
+
+  /* ── LOADER ── */
+  .loader {
+    display: inline-block;
+    width: 18px; height: 18px;
+    border: 2.5px solid var(--gray-light);
+    border-top-color: var(--green-deep);
+    border-radius: 50%;
+    animation: spin 0.6s linear infinite;
+  }
+  @keyframes spin { to { transform: rotate(360deg); } }
+
+  .empty-state {
+    text-align: center;
+    padding: 2.5rem 1rem;
+    color: var(--gray);
+  }
+  .empty-state .icon { font-size: 2.5rem; margin-bottom: 0.5rem; }
+
+  .products-list { display: flex; flex-direction: column; gap: 0.5rem; }
+  .product-row {
+    display: grid;
+    grid-template-columns: 2fr 1fr 1fr auto;
+    gap: 0.5rem;
+    align-items: end;
+  }
+  .product-row .form-group { margin: 0; }
+  .btn-icon {
+    width: 36px; height: 36px;
+    display: flex; align-items: center; justify-content: center;
+    border-radius: 8px; border: none; cursor: pointer;
+    font-size: 1.1rem; background: var(--gray-light); color: var(--gray);
+    transition: all 0.2s;
+  }
+  .btn-icon:hover { background: #FEE2E2; color: var(--coral); }
+  .btn-icon.add { background: var(--green-pale); color: var(--green-deep); }
+  .btn-icon.add:hover { background: var(--green-light); }
+
+  .order-total-display {
+    font-size: 1.1rem;
+    font-weight: 800;
+    color: var(--green-deep);
+    text-align: right;
+    padding: 0.5rem 0;
+    border-top: 2px dashed var(--gray-light);
+    margin-top: 0.5rem;
+  }
+
+  /* ── CONFIG BAR ── */
+  .config-bar {
+    background: var(--sand);
+    padding: 0.75rem 1.5rem;
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    flex-wrap: wrap;
+    font-size: 0.82rem;
+    border-bottom: 1px solid var(--gray-light);
+  }
+  .config-bar label { font-weight: 600; color: var(--gray); }
+  .config-bar input {
+    flex: 1;
+    min-width: 200px;
+    padding: 0.4rem 0.6rem;
+    border: 1.5px solid var(--gray-light);
+    border-radius: 6px;
+    font-size: 0.82rem;
+    font-family: inherit;
+  }
+
+  @media (max-width: 600px) {
+    .form-grid { grid-template-columns: 1fr; }
+    .product-row { grid-template-columns: 1fr 1fr; }
+    .product-row .form-group:first-child { grid-column: 1 / -1; }
+    .stats-row { grid-template-columns: 1fr 1fr; }
+    .header h1 { font-size: 1.1rem; }
+    .filter-bar { flex-direction: column; }
+    .filter-bar input { min-width: 100%; }
+  }
+</style>
+</head>
+<body>
+
+<!-- HEADER -->
+<header class="header">
+  <h1>🥭 <span>Mangara</span> · Gestión</h1>
+  <span class="header-status" id="connStatus">Sin conectar</span>
+</header>
+
+<!-- CONFIG BAR -->
+<div class="config-bar">
+  <label>URL del Script:</label>
+  <input type="text" id="scriptUrl" placeholder="Pega aquí la URL de tu Google Apps Script desplegado">
+  <button class="btn btn-primary btn-sm" onclick="saveConfig()">Guardar</button>
+  <button class="btn btn-ghost btn-sm" onclick="testConnection()">Probar</button>
+</div>
+
+<!-- TAB NAV -->
+<nav class="tab-nav">
+  <button class="tab-btn active" onclick="switchTab('ventas')">🛒 Ventas Mangara</button>
+  <button class="tab-btn" onclick="switchTab('finanzas')">💰 Finanzas Yepes Carcamo</button>
+</nav>
+
+<!-- ═══════════════════════════════════════ -->
+<!-- TAB: VENTAS                            -->
+<!-- ═══════════════════════════════════════ -->
+<div class="tab-content active" id="tab-ventas">
+
+  <!-- Stats -->
+  <div class="stats-row" id="ventasStats">
+    <div class="stat-card stat-green">
+      <div class="stat-value" id="statTotalVentas">$0</div>
+      <div class="stat-label">Ventas totales</div>
+    </div>
+    <div class="stat-card stat-orange">
+      <div class="stat-value" id="statPendientes">0</div>
+      <div class="stat-label">Pagos pendientes</div>
+    </div>
+    <div class="stat-card stat-blue">
+      <div class="stat-value" id="statDomicilios">0</div>
+      <div class="stat-label">Domicilios</div>
+    </div>
+    <div class="stat-card stat-red">
+      <div class="stat-value" id="statDeuda">$0</div>
+      <div class="stat-label">Por cobrar</div>
+    </div>
+  </div>
+
+  <!-- New Order Form -->
+  <div class="card">
+    <div class="card-title">📝 Nuevo pedido</div>
+    <div class="form-grid">
+      <div class="form-group">
+        <label>Cliente</label>
+        <input type="text" id="vCliente" placeholder="Nombre del cliente">
+      </div>
+      <div class="form-group">
+        <label>Teléfono</label>
+        <input type="tel" id="vTelefono" placeholder="300 123 4567">
+      </div>
+      <div class="form-group">
+        <label>Fecha</label>
+        <input type="date" id="vFecha">
+      </div>
+      <div class="form-group">
+        <label>Estado de pago</label>
+        <select id="vPagado">
+          <option value="Pendiente">Pendiente</option>
+          <option value="Pagado">Pagado</option>
+          <option value="Parcial">Parcial</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label>¿Necesita domicilio?</label>
+        <select id="vDomicilio">
+          <option value="No">No</option>
+          <option value="Sí">Sí</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label>Dirección de entrega</label>
+        <input type="text" id="vDireccion" placeholder="Dirección (si aplica)">
+      </div>
+      <div class="form-group full">
+        <label>Productos</label>
+        <div class="products-list" id="productsList">
+          <!-- product rows render here -->
+        </div>
+        <button class="btn btn-ghost btn-sm" style="margin-top:0.5rem" onclick="addProductRow()">+ Agregar producto</button>
+        <div class="order-total-display">Total: $<span id="orderTotal">0</span></div>
+      </div>
+      <div class="form-group full">
+        <label>Notas</label>
+        <textarea id="vNotas" placeholder="Observaciones adicionales..."></textarea>
+      </div>
+    </div>
+    <div class="btn-row">
+      <button class="btn btn-primary" id="btnGuardarVenta" onclick="guardarVenta()">Guardar pedido</button>
+      <button class="btn btn-ghost" onclick="limpiarFormVenta()">Limpiar</button>
+    </div>
+  </div>
+
+  <!-- Orders List -->
+  <div class="card">
+    <div class="card-title">📋 Historial de pedidos</div>
+    <div class="filter-bar">
+      <input type="text" id="searchVentas" placeholder="Buscar cliente..." oninput="filtrarVentas()">
+      <select id="filterPago" onchange="filtrarVentas()">
+        <option value="">Todos los pagos</option>
+        <option value="Pagado">Pagado</option>
+        <option value="Pendiente">Pendiente</option>
+        <option value="Parcial">Parcial</option>
+      </select>
+      <button class="btn btn-ghost btn-sm" onclick="cargarVentas()">↻ Actualizar</button>
+    </div>
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr>
+            <th>Fecha</th>
+            <th>Cliente</th>
+            <th>Productos</th>
+            <th>Total</th>
+            <th>Pago</th>
+            <th>Domicilio</th>
+            <th>Acciones</th>
+          </tr>
+        </thead>
+        <tbody id="ventasBody">
+          <tr><td colspan="7" class="empty-state"><div class="icon">📦</div>No hay pedidos aún</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════ -->
+<!-- TAB: FINANZAS                          -->
+<!-- ═══════════════════════════════════════ -->
+<div class="tab-content" id="tab-finanzas">
+
+  <!-- Stats -->
+  <div class="stats-row" id="finanzasStats">
+    <div class="stat-card stat-green">
+      <div class="stat-value" id="statIngresos">$0</div>
+      <div class="stat-label">Ingresos</div>
+    </div>
+    <div class="stat-card stat-red">
+      <div class="stat-value" id="statGastos">$0</div>
+      <div class="stat-label">Gastos</div>
+    </div>
+    <div class="stat-card stat-blue">
+      <div class="stat-value" id="statBalance">$0</div>
+      <div class="stat-label">Balance</div>
+    </div>
+  </div>
+
+  <!-- New Transaction Form -->
+  <div class="card">
+    <div class="card-title finance-title">📝 Nuevo movimiento</div>
+    <div class="form-grid">
+      <div class="form-group">
+        <label>Tipo</label>
+        <select id="fTipo">
+          <option value="Gasto">Gasto</option>
+          <option value="Ingreso">Ingreso</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label>Categoría</label>
+        <select id="fCategoria">
+          <optgroup label="Gastos">
+            <option value="Alimentación">🍽 Alimentación</option>
+            <option value="Transporte">🚌 Transporte</option>
+            <option value="Servicios">💡 Servicios (agua, luz, gas)</option>
+            <option value="Arriendo">🏠 Arriendo</option>
+            <option value="Salud">🏥 Salud</option>
+            <option value="Educación">📚 Educación</option>
+            <option value="Entretenimiento">🎬 Entretenimiento</option>
+            <option value="Ropa">👕 Ropa</option>
+            <option value="Mercado">🛒 Mercado</option>
+            <option value="Deudas">💳 Deudas</option>
+            <option value="Mangara Inversión">🥭 Inversión Mangara</option>
+            <option value="Otro Gasto">📌 Otro</option>
+          </optgroup>
+          <optgroup label="Ingresos">
+            <option value="Salario">💼 Salario</option>
+            <option value="Ventas Mangara">🥭 Ventas Mangara</option>
+            <option value="Freelance">💻 Freelance</option>
+            <option value="Préstamo recibido">🤝 Préstamo recibido</option>
+            <option value="Otro Ingreso">📌 Otro ingreso</option>
+          </optgroup>
+        </select>
+      </div>
+      <div class="form-group">
+        <label>Monto ($)</label>
+        <input type="number" id="fMonto" placeholder="0" min="0">
+      </div>
+      <div class="form-group">
+        <label>Fecha</label>
+        <input type="date" id="fFecha">
+      </div>
+      <div class="form-group">
+        <label>Responsable</label>
+        <input type="text" id="fResponsable" placeholder="Quien gastó / recibió">
+      </div>
+      <div class="form-group">
+        <label>Método de pago</label>
+        <select id="fMetodo">
+          <option value="Efectivo">Efectivo</option>
+          <option value="Nequi">Nequi</option>
+          <option value="Daviplata">Daviplata</option>
+          <option value="Transferencia">Transferencia</option>
+          <option value="Tarjeta">Tarjeta</option>
+          <option value="Otro">Otro</option>
+        </select>
+      </div>
+      <div class="form-group full">
+        <label>Descripción</label>
+        <textarea id="fDescripcion" placeholder="Detalle del movimiento..."></textarea>
+      </div>
+    </div>
+    <div class="btn-row">
+      <button class="btn btn-secondary" id="btnGuardarFinanza" onclick="guardarFinanza()">Guardar movimiento</button>
+      <button class="btn btn-ghost" onclick="limpiarFormFinanza()">Limpiar</button>
+    </div>
+  </div>
+
+  <!-- Transactions List -->
+  <div class="card">
+    <div class="card-title finance-title">📋 Historial de movimientos</div>
+    <div class="filter-bar">
+      <input type="text" id="searchFinanzas" placeholder="Buscar..." oninput="filtrarFinanzas()">
+      <select id="filterTipo" onchange="filtrarFinanzas()">
+        <option value="">Todos</option>
+        <option value="Ingreso">Ingresos</option>
+        <option value="Gasto">Gastos</option>
+      </select>
+      <select id="filterMes" onchange="filtrarFinanzas()">
+        <option value="">Todos los meses</option>
+      </select>
+      <button class="btn btn-ghost btn-sm" onclick="cargarFinanzas()">↻ Actualizar</button>
+    </div>
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr>
+            <th>Fecha</th>
+            <th>Tipo</th>
+            <th>Categoría</th>
+            <th>Descripción</th>
+            <th>Monto</th>
+            <th>Responsable</th>
+            <th>Acciones</th>
+          </tr>
+        </thead>
+        <tbody id="finanzasBody">
+          <tr><td colspan="7" class="empty-state"><div class="icon">💰</div>No hay movimientos aún</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════ -->
+<!-- MODAL EDITAR VENTA                     -->
+<!-- ═══════════════════════════════════════ -->
+<div class="modal-overlay" id="modalVenta">
+  <div class="modal">
+    <div class="modal-header">
+      <h3>✏️ Editar pedido</h3>
+      <button class="modal-close" onclick="cerrarModal('modalVenta')">&times;</button>
+    </div>
+    <div class="form-grid">
+      <input type="hidden" id="evRow">
+      <div class="form-group">
+        <label>Cliente</label>
+        <input type="text" id="evCliente">
+      </div>
+      <div class="form-group">
+        <label>Teléfono</label>
+        <input type="tel" id="evTelefono">
+      </div>
+      <div class="form-group">
+        <label>Fecha</label>
+        <input type="date" id="evFecha">
+      </div>
+      <div class="form-group">
+        <label>Estado de pago</label>
+        <select id="evPagado">
+          <option value="Pendiente">Pendiente</option>
+          <option value="Pagado">Pagado</option>
+          <option value="Parcial">Parcial</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label>¿Domicilio?</label>
+        <select id="evDomicilio">
+          <option value="No">No</option>
+          <option value="Sí">Sí</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label>Dirección</label>
+        <input type="text" id="evDireccion">
+      </div>
+      <div class="form-group full">
+        <label>Productos (formato: producto|cant|precio; separados por coma)</label>
+        <textarea id="evProductos" placeholder="Producto 1|2|15000, Producto 2|1|8000"></textarea>
+      </div>
+      <div class="form-group">
+        <label>Total ($)</label>
+        <input type="number" id="evTotal">
+      </div>
+      <div class="form-group full">
+        <label>Notas</label>
+        <textarea id="evNotas"></textarea>
+      </div>
+    </div>
+    <div class="btn-row">
+      <button class="btn btn-primary" onclick="actualizarVenta()">Actualizar</button>
+      <button class="btn btn-ghost" onclick="cerrarModal('modalVenta')">Cancelar</button>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL EDITAR FINANZA -->
+<div class="modal-overlay" id="modalFinanza">
+  <div class="modal">
+    <div class="modal-header">
+      <h3 style="color:var(--mango)">✏️ Editar movimiento</h3>
+      <button class="modal-close" onclick="cerrarModal('modalFinanza')">&times;</button>
+    </div>
+    <div class="form-grid">
+      <input type="hidden" id="efRow">
+      <div class="form-group">
+        <label>Tipo</label>
+        <select id="efTipo">
+          <option value="Gasto">Gasto</option>
+          <option value="Ingreso">Ingreso</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label>Categoría</label>
+        <input type="text" id="efCategoria">
+      </div>
+      <div class="form-group">
+        <label>Monto ($)</label>
+        <input type="number" id="efMonto" min="0">
+      </div>
+      <div class="form-group">
+        <label>Fecha</label>
+        <input type="date" id="efFecha">
+      </div>
+      <div class="form-group">
+        <label>Responsable</label>
+        <input type="text" id="efResponsable">
+      </div>
+      <div class="form-group">
+        <label>Método</label>
+        <select id="efMetodo">
+          <option value="Efectivo">Efectivo</option>
+          <option value="Nequi">Nequi</option>
+          <option value="Daviplata">Daviplata</option>
+          <option value="Transferencia">Transferencia</option>
+          <option value="Tarjeta">Tarjeta</option>
+          <option value="Otro">Otro</option>
+        </select>
+      </div>
+      <div class="form-group full">
+        <label>Descripción</label>
+        <textarea id="efDescripcion"></textarea>
+      </div>
+    </div>
+    <div class="btn-row">
+      <button class="btn btn-secondary" onclick="actualizarFinanza()">Actualizar</button>
+      <button class="btn btn-ghost" onclick="cerrarModal('modalFinanza')">Cancelar</button>
+    </div>
+  </div>
+</div>
+
+<!-- TOAST -->
+<div class="toast-container" id="toastContainer"></div>
+
+<script>
+// ════════════════════════════════════════
+// CONFIG & STATE
+// ════════════════════════════════════════
+let SCRIPT_URL = localStorage.getItem('mangara_script_url') || '';
+let ventasData = [];
+let finanzasData = [];
+
+function saveConfig() {
+  SCRIPT_URL = document.getElementById('scriptUrl').value.trim();
+  localStorage.setItem('mangara_script_url', SCRIPT_URL);
+  toast('URL guardada', 'success');
+}
+
+function loadConfig() {
+  document.getElementById('scriptUrl').value = SCRIPT_URL;
+  if (SCRIPT_URL) testConnection();
+}
+
+async function testConnection() {
+  if (!SCRIPT_URL) { toast('Configura la URL primero', 'error'); return; }
+  const el = document.getElementById('connStatus');
+  el.textContent = 'Conectando...';
+  try {
+    const r = await fetch(SCRIPT_URL + '?action=ping');
+    const d = await r.json();
+    if (d.status === 'ok') {
+      el.textContent = '● Conectado';
+      el.classList.add('connected');
+      toast('Conexión exitosa', 'success');
+      cargarVentas();
+      cargarFinanzas();
+    } else throw new Error();
+  } catch(e) {
+    el.textContent = '✕ Error';
+    el.classList.remove('connected');
+    toast('No se pudo conectar. Verifica la URL.', 'error');
+  }
+}
+
+// ════════════════════════════════════════
+// TABS
+// ════════════════════════════════════════
+function switchTab(tab) {
+  document.querySelectorAll('.tab-btn').forEach((b, i) => {
+    b.classList.toggle('active', (tab === 'ventas' && i === 0) || (tab === 'finanzas' && i === 1));
+  });
+  document.getElementById('tab-ventas').classList.toggle('active', tab === 'ventas');
+  document.getElementById('tab-finanzas').classList.toggle('active', tab === 'finanzas');
+}
+
+// ════════════════════════════════════════
+// PRODUCT ROWS
+// ════════════════════════════════════════
+let productCounter = 0;
+
+function addProductRow(name = '', qty = '', price = '') {
+  productCounter++;
+  const id = productCounter;
+  const div = document.createElement('div');
+  div.className = 'product-row';
+  div.id = 'prod-' + id;
+  div.innerHTML = `
+    <div class="form-group">
+      <input type="text" placeholder="Nombre producto" value="${name}" onchange="calcTotal()" class="prod-name">
+    </div>
+    <div class="form-group">
+      <input type="number" placeholder="Cant." value="${qty}" min="1" onchange="calcTotal()" oninput="calcTotal()" class="prod-qty">
+    </div>
+    <div class="form-group">
+      <input type="number" placeholder="Precio $" value="${price}" min="0" onchange="calcTotal()" oninput="calcTotal()" class="prod-price">
+    </div>
+    <button class="btn-icon" onclick="removeProduct(${id})" title="Quitar">✕</button>
+  `;
+  document.getElementById('productsList').appendChild(div);
+  calcTotal();
+}
+
+function removeProduct(id) {
+  const el = document.getElementById('prod-' + id);
+  if (el) el.remove();
+  calcTotal();
+}
+
+function calcTotal() {
+  let total = 0;
+  document.querySelectorAll('.product-row').forEach(row => {
+    const qty = parseFloat(row.querySelector('.prod-qty')?.value) || 0;
+    const price = parseFloat(row.querySelector('.prod-price')?.value) || 0;
+    total += qty * price;
+  });
+  document.getElementById('orderTotal').textContent = formatNum(total);
+  return total;
+}
+
+function getProductsString() {
+  const prods = [];
+  document.querySelectorAll('.product-row').forEach(row => {
+    const name = row.querySelector('.prod-name')?.value || '';
+    const qty = row.querySelector('.prod-qty')?.value || '0';
+    const price = row.querySelector('.prod-price')?.value || '0';
+    if (name) prods.push(`${name}|${qty}|${price}`);
+  });
+  return prods.join(', ');
+}
+
+// ════════════════════════════════════════
+// VENTAS CRUD
+// ════════════════════════════════════════
+async function guardarVenta() {
+  if (!SCRIPT_URL) { toast('Configura la URL del script primero', 'error'); return; }
+  const cliente = document.getElementById('vCliente').value.trim();
+  if (!cliente) { toast('El nombre del cliente es obligatorio', 'error'); return; }
+
+  const btn = document.getElementById('btnGuardarVenta');
+  btn.disabled = true;
+  btn.innerHTML = '<span class="loader"></span> Guardando...';
+
+  const data = {
+    action: 'addVenta',
+    fecha: document.getElementById('vFecha').value,
+    cliente: cliente,
+    telefono: document.getElementById('vTelefono').value,
+    productos: getProductsString(),
+    total: calcTotal(),
+    pagado: document.getElementById('vPagado').value,
+    domicilio: document.getElementById('vDomicilio').value,
+    direccion: document.getElementById('vDireccion').value,
+    notas: document.getElementById('vNotas').value
+  };
+
+  try {
+    const r = await fetch(SCRIPT_URL, {
+      method: 'POST',
+      headers: { 'Content-Type': 'text/plain' },
+      body: JSON.stringify(data)
+    });
+    const d = await r.json();
+    if (d.status === 'ok') {
+      toast('Pedido guardado ✓', 'success');
+      limpiarFormVenta();
+      cargarVentas();
+    } else throw new Error(d.message);
+  } catch(e) {
+    toast('Error al guardar: ' + e.message, 'error');
+  }
+  btn.disabled = false;
+  btn.textContent = 'Guardar pedido';
+}
+
+async function cargarVentas() {
+  if (!SCRIPT_URL) return;
+  try {
+    const r = await fetch(SCRIPT_URL + '?action=getVentas');
+    const d = await r.json();
+    ventasData = d.data || [];
+    renderVentas(ventasData);
+    calcVentasStats(ventasData);
+  } catch(e) {
+    console.error('Error cargando ventas:', e);
+  }
+}
+
+function renderVentas(data) {
+  const tbody = document.getElementById('ventasBody');
+  if (!data.length) {
+    tbody.innerHTML = '<tr><td colspan="7" class="empty-state"><div class="icon">📦</div>No hay pedidos aún</td></tr>';
+    return;
+  }
+  tbody.innerHTML = data.map((v, i) => {
+    const pagoBadge = v.pagado === 'Pagado' ? 'badge-paid' : v.pagado === 'Parcial' ? 'badge-pending' : 'badge-pending';
+    const domBadge = v.domicilio === 'Sí' ? 'badge-yes' : 'badge-no';
+    const prodsDisplay = (v.productos || '').split(',').map(p => {
+      const parts = p.trim().split('|');
+      return parts[0] ? `${parts[0]} (×${parts[1] || 1})` : '';
+    }).filter(Boolean).join(', ') || '—';
+
+    return `<tr>
+      <td>${v.fecha || '—'}</td>
+      <td><strong>${v.cliente}</strong>${v.telefono ? '<br><small style="color:var(--gray)">' + v.telefono + '</small>' : ''}</td>
+      <td style="max-width:200px;font-size:0.8rem">${prodsDisplay}</td>
+      <td><strong>$${formatNum(v.total)}</strong></td>
+      <td><span class="badge ${pagoBadge}">${v.pagado}</span></td>
+      <td><span class="badge ${domBadge}">${v.domicilio}</span></td>
+      <td>
+        <button class="btn btn-ghost btn-sm" onclick="editarVenta(${v.row})">✏️</button>
+        <button class="btn btn-ghost btn-sm" onclick="eliminarVenta(${v.row})" style="color:var(--coral)">🗑</button>
+      </td>
+    </tr>`;
+  }).join('');
+}
+
+function calcVentasStats(data) {
+  let totalVentas = 0, pendientes = 0, domicilios = 0, deuda = 0;
+  data.forEach(v => {
+    totalVentas += parseFloat(v.total) || 0;
+    if (v.pagado !== 'Pagado') { pendientes++; deuda += parseFloat(v.total) || 0; }
+    if (v.domicilio === 'Sí') domicilios++;
+  });
+  document.getElementById('statTotalVentas').textContent = '$' + formatNum(totalVentas);
+  document.getElementById('statPendientes').textContent = pendientes;
+  document.getElementById('statDomicilios').textContent = domicilios;
+  document.getElementById('statDeuda').textContent = '$' + formatNum(deuda);
+}
+
+function filtrarVentas() {
+  const search = document.getElementById('searchVentas').value.toLowerCase();
+  const pago = document.getElementById('filterPago').value;
+  const filtered = ventasData.filter(v => {
+    const matchSearch = v.cliente.toLowerCase().includes(search) || (v.productos || '').toLowerCase().includes(search);
+    const matchPago = !pago || v.pagado === pago;
+    return matchSearch && matchPago;
+  });
+  renderVentas(filtered);
+}
+
+async function editarVenta(row) {
+  const v = ventasData.find(x => x.row === row);
+  if (!v) return;
+  document.getElementById('evRow').value = row;
+  document.getElementById('evCliente').value = v.cliente;
+  document.getElementById('evTelefono').value = v.telefono || '';
+  document.getElementById('evFecha').value = v.fecha || '';
+  document.getElementById('evPagado').value = v.pagado || 'Pendiente';
+  document.getElementById('evDomicilio').value = v.domicilio || 'No';
+  document.getElementById('evDireccion').value = v.direccion || '';
+  document.getElementById('evProductos').value = v.productos || '';
+  document.getElementById('evTotal').value = v.total || 0;
+  document.getElementById('evNotas').value = v.notas || '';
+  document.getElementById('modalVenta').classList.add('show');
+}
+
+async function actualizarVenta() {
+  if (!SCRIPT_URL) return;
+  const data = {
+    action: 'updateVenta',
+    row: parseInt(document.getElementById('evRow').value),
+    fecha: document.getElementById('evFecha').value,
+    cliente: document.getElementById('evCliente').value,
+    telefono: document.getElementById('evTelefono').value,
+    productos: document.getElementById('evProductos').value,
+    total: parseFloat(document.getElementById('evTotal').value) || 0,
+    pagado: document.getElementById('evPagado').value,
+    domicilio: document.getElementById('evDomicilio').value,
+    direccion: document.getElementById('evDireccion').value,
+    notas: document.getElementById('evNotas').value
+  };
+  try {
+    const r = await fetch(SCRIPT_URL, {
+      method: 'POST', headers: {'Content-Type':'text/plain'},
+      body: JSON.stringify(data)
+    });
+    const d = await r.json();
+    if (d.status === 'ok') {
+      toast('Pedido actualizado ✓', 'success');
+      cerrarModal('modalVenta');
+      cargarVentas();
+    } else throw new Error(d.message);
+  } catch(e) { toast('Error: ' + e.message, 'error'); }
+}
+
+async function eliminarVenta(row) {
+  if (!confirm('¿Seguro que quieres eliminar este pedido?')) return;
+  try {
+    const r = await fetch(SCRIPT_URL, {
+      method: 'POST', headers: {'Content-Type':'text/plain'},
+      body: JSON.stringify({ action: 'deleteVenta', row })
+    });
+    const d = await r.json();
+    if (d.status === 'ok') { toast('Pedido eliminado', 'success'); cargarVentas(); }
+    else throw new Error(d.message);
+  } catch(e) { toast('Error: ' + e.message, 'error'); }
+}
+
+function limpiarFormVenta() {
+  ['vCliente','vTelefono','vDireccion','vNotas'].forEach(id => document.getElementById(id).value = '');
+  document.getElementById('vFecha').value = new Date().toISOString().split('T')[0];
+  document.getElementById('vPagado').value = 'Pendiente';
+  document.getElementById('vDomicilio').value = 'No';
+  document.getElementById('productsList').innerHTML = '';
+  productCounter = 0;
+  addProductRow();
+}
+
+// ════════════════════════════════════════
+// FINANZAS CRUD
+// ════════════════════════════════════════
+async function guardarFinanza() {
+  if (!SCRIPT_URL) { toast('Configura la URL del script primero', 'error'); return; }
+  const monto = parseFloat(document.getElementById('fMonto').value);
+  if (!monto || monto <= 0) { toast('El monto es obligatorio', 'error'); return; }
+
+  const btn = document.getElementById('btnGuardarFinanza');
+  btn.disabled = true;
+  btn.innerHTML = '<span class="loader"></span> Guardando...';
+
+  const data = {
+    action: 'addFinanza',
+    fecha: document.getElementById('fFecha').value,
+    tipo: document.getElementById('fTipo').value,
+    categoria: document.getElementById('fCategoria').value,
+    monto: monto,
+    descripcion: document.getElementById('fDescripcion').value,
+    responsable: document.getElementById('fResponsable').value,
+    metodo: document.getElementById('fMetodo').value
+  };
+
+  try {
+    const r = await fetch(SCRIPT_URL, {
+      method: 'POST', headers: {'Content-Type':'text/plain'},
+      body: JSON.stringify(data)
+    });
+    const d = await r.json();
+    if (d.status === 'ok') {
+      toast('Movimiento guardado ✓', 'success');
+      limpiarFormFinanza();
+      cargarFinanzas();
+    } else throw new Error(d.message);
+  } catch(e) { toast('Error: ' + e.message, 'error'); }
+  btn.disabled = false;
+  btn.textContent = 'Guardar movimiento';
+}
+
+async function cargarFinanzas() {
+  if (!SCRIPT_URL) return;
+  try {
+    const r = await fetch(SCRIPT_URL + '?action=getFinanzas');
+    const d = await r.json();
+    finanzasData = d.data || [];
+    renderFinanzas(finanzasData);
+    calcFinanzasStats(finanzasData);
+    populateMonthFilter();
+  } catch(e) { console.error('Error cargando finanzas:', e); }
+}
+
+function renderFinanzas(data) {
+  const tbody = document.getElementById('finanzasBody');
+  if (!data.length) {
+    tbody.innerHTML = '<tr><td colspan="7" class="empty-state"><div class="icon">💰</div>No hay movimientos aún</td></tr>';
+    return;
+  }
+  tbody.innerHTML = data.map(f => {
+    const badge = f.tipo === 'Ingreso' ? 'badge-income' : 'badge-expense';
+    const sign = f.tipo === 'Ingreso' ? '+' : '-';
+    const color = f.tipo === 'Ingreso' ? 'var(--green-deep)' : 'var(--coral)';
+    return `<tr>
+      <td>${f.fecha || '—'}</td>
+      <td><span class="badge ${badge}">${f.tipo}</span></td>
+      <td>${f.categoria}</td>
+      <td style="max-width:200px;font-size:0.83rem">${f.descripcion || '—'}</td>
+      <td style="color:${color};font-weight:700">${sign}$${formatNum(f.monto)}</td>
+      <td>${f.responsable || '—'}</td>
+      <td>
+        <button class="btn btn-ghost btn-sm" onclick="editarFinanza(${f.row})">✏️</button>
+        <button class="btn btn-ghost btn-sm" onclick="eliminarFinanza(${f.row})" style="color:var(--coral)">🗑</button>
+      </td>
+    </tr>`;
+  }).join('');
+}
+
+function calcFinanzasStats(data) {
+  let ingresos = 0, gastos = 0;
+  data.forEach(f => {
+    if (f.tipo === 'Ingreso') ingresos += parseFloat(f.monto) || 0;
+    else gastos += parseFloat(f.monto) || 0;
+  });
+  document.getElementById('statIngresos').textContent = '$' + formatNum(ingresos);
+  document.getElementById('statGastos').textContent = '$' + formatNum(gastos);
+  const balance = ingresos - gastos;
+  const balEl = document.getElementById('statBalance');
+  balEl.textContent = (balance >= 0 ? '+' : '-') + '$' + formatNum(Math.abs(balance));
+  balEl.style.color = balance >= 0 ? 'var(--green-deep)' : 'var(--coral)';
+}
+
+function populateMonthFilter() {
+  const select = document.getElementById('filterMes');
+  const meses = [...new Set(finanzasData.map(f => f.fecha ? f.fecha.substring(0,7) : '').filter(Boolean))].sort().reverse();
+  select.innerHTML = '<option value="">Todos los meses</option>' + meses.map(m => `<option value="${m}">${m}</option>`).join('');
+}
+
+function filtrarFinanzas() {
+  const search = document.getElementById('searchFinanzas').value.toLowerCase();
+  const tipo = document.getElementById('filterTipo').value;
+  const mes = document.getElementById('filterMes').value;
+  const filtered = finanzasData.filter(f => {
+    const matchSearch = (f.descripcion || '').toLowerCase().includes(search) || (f.categoria || '').toLowerCase().includes(search) || (f.responsable || '').toLowerCase().includes(search);
+    const matchTipo = !tipo || f.tipo === tipo;
+    const matchMes = !mes || (f.fecha || '').startsWith(mes);
+    return matchSearch && matchTipo && matchMes;
+  });
+  renderFinanzas(filtered);
+  calcFinanzasStats(filtered);
+}
+
+async function editarFinanza(row) {
+  const f = finanzasData.find(x => x.row === row);
+  if (!f) return;
+  document.getElementById('efRow').value = row;
+  document.getElementById('efTipo').value = f.tipo;
+  document.getElementById('efCategoria').value = f.categoria;
+  document.getElementById('efMonto').value = f.monto;
+  document.getElementById('efFecha').value = f.fecha;
+  document.getElementById('efResponsable').value = f.responsable || '';
+  document.getElementById('efMetodo').value = f.metodo || 'Efectivo';
+  document.getElementById('efDescripcion').value = f.descripcion || '';
+  document.getElementById('modalFinanza').classList.add('show');
+}
+
+async function actualizarFinanza() {
+  if (!SCRIPT_URL) return;
+  const data = {
+    action: 'updateFinanza',
+    row: parseInt(document.getElementById('efRow').value),
+    fecha: document.getElementById('efFecha').value,
+    tipo: document.getElementById('efTipo').value,
+    categoria: document.getElementById('efCategoria').value,
+    monto: parseFloat(document.getElementById('efMonto').value) || 0,
+    descripcion: document.getElementById('efDescripcion').value,
+    responsable: document.getElementById('efResponsable').value,
+    metodo: document.getElementById('efMetodo').value
+  };
+  try {
+    const r = await fetch(SCRIPT_URL, {
+      method: 'POST', headers: {'Content-Type':'text/plain'},
+      body: JSON.stringify(data)
+    });
+    const d = await r.json();
+    if (d.status === 'ok') {
+      toast('Movimiento actualizado ✓', 'success');
+      cerrarModal('modalFinanza');
+      cargarFinanzas();
+    } else throw new Error(d.message);
+  } catch(e) { toast('Error: ' + e.message, 'error'); }
+}
+
+async function eliminarFinanza(row) {
+  if (!confirm('¿Seguro que quieres eliminar este movimiento?')) return;
+  try {
+    const r = await fetch(SCRIPT_URL, {
+      method: 'POST', headers: {'Content-Type':'text/plain'},
+      body: JSON.stringify({ action: 'deleteFinanza', row })
+    });
+    const d = await r.json();
+    if (d.status === 'ok') { toast('Movimiento eliminado', 'success'); cargarFinanzas(); }
+    else throw new Error(d.message);
+  } catch(e) { toast('Error: ' + e.message, 'error'); }
+}
+
+function limpiarFormFinanza() {
+  ['fMonto','fDescripcion','fResponsable'].forEach(id => document.getElementById(id).value = '');
+  document.getElementById('fFecha').value = new Date().toISOString().split('T')[0];
+  document.getElementById('fTipo').value = 'Gasto';
+  document.getElementById('fCategoria').value = 'Alimentación';
+  document.getElementById('fMetodo').value = 'Efectivo';
+}
+
+// ════════════════════════════════════════
+// UTILS
+// ════════════════════════════════════════
+function formatNum(n) {
+  return Math.round(n).toLocaleString('es-CO');
+}
+
+function cerrarModal(id) {
+  document.getElementById(id).classList.remove('show');
+}
+
+function toast(msg, type = 'success') {
+  const container = document.getElementById('toastContainer');
+  const t = document.createElement('div');
+  t.className = 'toast toast-' + type;
+  t.textContent = msg;
+  container.appendChild(t);
+  setTimeout(() => t.remove(), 3500);
+}
+
+// Close modals on overlay click
+document.querySelectorAll('.modal-overlay').forEach(m => {
+  m.addEventListener('click', e => { if (e.target === m) m.classList.remove('show'); });
+});
+
+// ════════════════════════════════════════
+// INIT
+// ════════════════════════════════════════
+document.addEventListener('DOMContentLoaded', () => {
+  document.getElementById('vFecha').value = new Date().toISOString().split('T')[0];
+  document.getElementById('fFecha').value = new Date().toISOString().split('T')[0];
+  addProductRow();
+  loadConfig();
+});
+</script>
+</body>
+</html>
