@@ -343,6 +343,54 @@
   }
   .toggle-row button.sel { background:var(--green); color:var(--white); }
   .toggle-row button.sel-m { background:var(--mango); color:var(--white); }
+
+  /* ── SUB-TABS MANGARA ── */
+  .sub-tabs {
+    display:flex; gap:4px;
+    background:var(--white);
+    border-radius:var(--r);
+    padding:4px;
+    margin-bottom:12px;
+    box-shadow:0 1px 4px rgba(0,0,0,0.06);
+  }
+  .sub-tab {
+    flex:1; border:none; background:none;
+    padding:10px 8px; border-radius:9px;
+    font-size:0.85rem; font-weight:700;
+    color:var(--gray); cursor:pointer;
+    font-family:inherit; transition:all 0.15s;
+  }
+  .sub-tab.act-v { background:var(--green); color:var(--white); }
+  .sub-tab.act-g { background:var(--coral); color:var(--white); }
+  .sub-panel { display:none; }
+  .sub-panel.active { display:block; }
+
+  /* ── GASTO MANGARA CARDS ── */
+  .gm-card {
+    background:var(--white);
+    border-radius:var(--r);
+    padding:14px;
+    margin-bottom:8px;
+    box-shadow:0 1px 4px rgba(0,0,0,0.06);
+    border-left:4px solid var(--coral);
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    gap:12px;
+  }
+  .gm-left { flex:1; min-width:0; }
+  .gm-concepto { font-weight:700; font-size:0.9rem; }
+  .gm-cat { font-size:0.75rem; color:var(--coral); font-weight:600; }
+  .gm-nota { font-size:0.78rem; color:var(--gray); white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+  .gm-meta { font-size:0.7rem; color:var(--gray); margin-top:2px; }
+  .gm-right { text-align:right; flex-shrink:0; }
+  .gm-monto { font-weight:800; font-size:1.05rem; color:var(--coral); }
+  .gm-actions { display:flex; gap:4px; margin-top:4px; }
+  .gm-actions button {
+    padding:4px 10px; border:1px solid var(--gray-light);
+    border-radius:6px; background:var(--white);
+    font-size:0.78rem; cursor:pointer;
+  }
 </style>
 </head>
 <body>
@@ -355,6 +403,14 @@
 
 <!-- ═══════════════ VENTAS ═══════════════ -->
 <div class="section active" id="sec-ventas">
+  <!-- Sub-tabs -->
+  <div class="sub-tabs">
+    <button class="sub-tab act-v" onclick="goSubTab('ventas')">🛒 Ventas</button>
+    <button class="sub-tab" onclick="goSubTab('gastos')">💸 Gastos</button>
+  </div>
+
+  <!-- ══ PANEL VENTAS ══ -->
+  <div class="sub-panel active" id="pan-ventas">
   <div class="stats" id="ventasStats">
     <div class="st sg"><div class="v" id="sTV">$0</div><div class="l">Ventas</div></div>
     <div class="st so"><div class="v" id="sTP">0</div><div class="l">Pendientes</div></div>
@@ -403,6 +459,68 @@
     </div>
     <div id="ventasList"></div>
   </div>
+  </div><!-- fin pan-ventas -->
+
+  <!-- ══ PANEL GASTOS MANGARA ══ -->
+  <div class="sub-panel" id="pan-gastos">
+  <div class="stats">
+    <div class="st sr"><div class="v" id="sGMT">$0</div><div class="l">Total gastos</div></div>
+    <div class="st so"><div class="v" id="sGMC">0</div><div class="l">Registros</div></div>
+    <div class="st sg"><div class="v" id="sGMU">$0</div><div class="l">Utilidad est.</div></div>
+  </div>
+
+  <div class="card">
+    <div class="card-t" style="color:var(--coral)">💸 Registrar gasto</div>
+    <div class="fg"><label>Concepto / Proveedor</label>
+      <input type="text" id="gmConcepto" placeholder="Ej: Compra de mangos, empaque..." autocomplete="off">
+    </div>
+    <div class="row2">
+      <div class="fg"><label>Monto ($)</label>
+        <input type="text" id="gmMonto" placeholder="0" inputmode="numeric" oninput="moneyInput(this)">
+      </div>
+      <div class="fg"><label>Categoría</label>
+        <select id="gmCat">
+          <option>🥭 Materia prima</option>
+          <option>📦 Empaque</option>
+          <option>🚚 Envíos / Transporte</option>
+          <option>🧹 Insumos / Limpieza</option>
+          <option>📱 Publicidad</option>
+          <option>🔧 Herramientas / Equipos</option>
+          <option>👤 Mano de obra</option>
+          <option>📌 Otro gasto</option>
+        </select>
+      </div>
+    </div>
+    <div class="fg"><label>Método de pago</label>
+      <select id="gmMet"><option>Efectivo</option><option>Nequi</option><option>Daviplata</option><option>Transferencia</option><option>Tarjeta</option></select>
+    </div>
+    <div class="fg"><label>Nota <small style="font-weight:400;text-transform:none">(opcional)</small></label>
+      <textarea id="gmNota" placeholder="Detalle adicional..." rows="2"></textarea>
+    </div>
+    <button class="btn" style="background:var(--coral);color:var(--white)" id="btnSaveGM" onclick="guardarGastoM()">Guardar gasto</button>
+    <button class="btn btn-o" onclick="limpiarGM()">Limpiar</button>
+  </div>
+
+  <div class="card">
+    <div class="card-t" style="color:var(--coral)">📋 Gastos registrados</div>
+    <div class="search-bar">
+      <input type="text" id="srcGM" placeholder="Buscar gasto..." oninput="filtrarGM()">
+      <select id="filGMCat" onchange="filtrarGM()">
+        <option value="">Todas</option>
+        <option>🥭 Materia prima</option>
+        <option>📦 Empaque</option>
+        <option>🚚 Envíos / Transporte</option>
+        <option>🧹 Insumos / Limpieza</option>
+        <option>📱 Publicidad</option>
+        <option>🔧 Herramientas / Equipos</option>
+        <option>👤 Mano de obra</option>
+        <option>📌 Otro gasto</option>
+      </select>
+    </div>
+    <div id="gastosMLista"></div>
+  </div>
+  </div><!-- fin pan-gastos -->
+
 </div>
 
 <!-- ═══════════════ FINANZAS ═══════════════ -->
@@ -421,7 +539,7 @@
     </div>
     <input type="hidden" id="fTipo" value="Gasto">
     <div class="row2">
-      <div class="fg"><label>Monto ($)</label><input type="number" id="fMonto" placeholder="0" inputmode="numeric"></div>
+      <div class="fg"><label>Monto ($)</label><input type="text" id="fMonto" placeholder="0" inputmode="numeric" oninput="moneyInput(this)"></div>
       <div class="fg"><label>Categoría</label>
         <select id="fCat">
           <optgroup label="Gastos">
@@ -480,7 +598,7 @@
       <textarea id="evProd" rows="3"></textarea>
     </div>
     <div class="row2">
-      <div class="fg"><label>Total ($)</label><input type="number" id="evTotal"></div>
+      <div class="fg"><label>Total ($)</label><input type="text" id="evTotal" inputmode="numeric" oninput="moneyInput(this)"></div>
       <div class="fg"><label>Pago</label>
         <select id="evPago"><option>Pendiente</option><option>Pagado</option><option>Parcial</option></select>
       </div>
@@ -499,6 +617,39 @@
 
 <!-- Edit Finanza -->
 <div class="modal-bg" id="mF">
+
+<!-- Edit Gasto Mangara -->
+<div class="modal-bg" id="mGM">
+  <div class="modal">
+    <div class="modal-head">
+      <h3 style="color:var(--coral)">✏️ Editar gasto</h3>
+      <button class="modal-x" onclick="closeM('mGM')">&times;</button>
+    </div>
+    <input type="hidden" id="egmR">
+    <div class="fg"><label>Concepto / Proveedor</label><input type="text" id="egmConcepto"></div>
+    <div class="row2">
+      <div class="fg"><label>Monto ($)</label><input type="text" id="egmMonto" inputmode="numeric" oninput="moneyInput(this)"></div>
+      <div class="fg"><label>Categoría</label>
+        <select id="egmCat">
+          <option>🥭 Materia prima</option>
+          <option>📦 Empaque</option>
+          <option>🚚 Envíos / Transporte</option>
+          <option>🧹 Insumos / Limpieza</option>
+          <option>📱 Publicidad</option>
+          <option>🔧 Herramientas / Equipos</option>
+          <option>👤 Mano de obra</option>
+          <option>📌 Otro gasto</option>
+        </select>
+      </div>
+    </div>
+    <div class="fg"><label>Método de pago</label>
+      <select id="egmMet"><option>Efectivo</option><option>Nequi</option><option>Daviplata</option><option>Transferencia</option><option>Tarjeta</option></select>
+    </div>
+    <div class="fg"><label>Nota</label><textarea id="egmNota" rows="2"></textarea></div>
+    <button class="btn" style="background:var(--coral);color:var(--white)" onclick="updateGM()">Actualizar</button>
+    <button class="btn btn-o" onclick="closeM('mGM')">Cancelar</button>
+  </div>
+</div>
   <div class="modal">
     <div class="modal-head">
       <h3 style="color:var(--mango)">✏️ Editar movimiento</h3>
@@ -509,7 +660,7 @@
       <div class="fg"><label>Tipo</label>
         <select id="efTipo"><option>Gasto</option><option>Ingreso</option></select>
       </div>
-      <div class="fg"><label>Monto ($)</label><input type="number" id="efMonto"></div>
+      <div class="fg"><label>Monto ($)</label><input type="text" id="efMonto" inputmode="numeric" oninput="moneyInput(this)"></div>
     </div>
     <div class="row2">
       <div class="fg"><label>Categoría</label><input type="text" id="efCat"></div>
@@ -536,7 +687,8 @@
 <script>
 // ═══════════════════════════════════════
 const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbxfUS9HL2XOT2sDFDjnyPBkg2_FM9VoCkpv7pal0GSLU5D8Lgah4l94NCc6X4oZ5NbN_Q/exec';
-let ventas = [], finanzas = [];
+let ventas = [], finanzas = [], gastosMangara = [];
+const GASTO_MARKER = 'GastoMangara';
 
 // ── DATE FORMATTING ──
 const MESES = ['enero','febrero','marzo','abril','mayo','junio','julio','agosto','septiembre','octubre','noviembre','diciembre'];
@@ -562,6 +714,23 @@ function fechaBonita(str) {
 function hoy() { return new Date().toISOString().split('T')[0]; }
 function fmt(n) { return Math.round(n).toLocaleString('es-CO'); }
 
+// ── MONEY INPUT FORMATTING ──
+function formatMoney(val) {
+  const num = typeof val === 'string' ? parseInt(val.replace(/\D/g,''),10) : Math.round(val);
+  if (!num && num !== 0) return '';
+  return num.toLocaleString('es-CO');
+}
+function parseMoney(str) {
+  if (typeof str === 'number') return str;
+  return parseFloat(String(str).replace(/\./g,'').replace(/,/g,'.'))||0;
+}
+function moneyInput(el) {
+  const raw = el.value.replace(/\D/g,'');
+  const pos = el.value.length - el.selectionStart;
+  el.value = raw ? parseInt(raw,10).toLocaleString('es-CO') : '';
+  try { const np = el.value.length - pos; el.setSelectionRange(np,np); } catch(e){}
+}
+
 // ── TABS ──
 function goTab(t) {
   document.getElementById('sec-ventas').classList.toggle('active', t==='ventas');
@@ -569,6 +738,15 @@ function goTab(t) {
   const btns = document.querySelectorAll('.nav-btn');
   btns[0].className = 'nav-btn' + (t==='ventas' ? ' active' : '');
   btns[1].className = 'nav-btn' + (t==='finanzas' ? ' active-fin' : '');
+}
+
+// ── SUB-TABS (Ventas/Gastos Mangara) ──
+function goSubTab(t) {
+  document.getElementById('pan-ventas').classList.toggle('active', t==='ventas');
+  document.getElementById('pan-gastos').classList.toggle('active', t==='gastos');
+  const tabs = document.querySelectorAll('.sub-tab');
+  tabs[0].className = 'sub-tab' + (t==='ventas' ? ' act-v' : '');
+  tabs[1].className = 'sub-tab' + (t==='gastos' ? ' act-g' : '');
 }
 
 // ── CONNECTION ──
@@ -598,7 +776,7 @@ function addProd(n='', q='', p='') {
   d.innerHTML = `
     <input type="text" placeholder="Producto" value="${n}" class="pn">
     <input type="number" placeholder="Cant" value="${q}" inputmode="numeric" class="pq" oninput="calcT()">
-    <input type="number" placeholder="Precio" value="${p}" inputmode="numeric" class="pp" oninput="calcT()">
+    <input type="text" placeholder="Precio" value="${p?formatMoney(p):''}" inputmode="numeric" class="pp" oninput="moneyInput(this);calcT()">
     <button class="pr-del" onclick="remProd(${id})">✕</button>`;
   document.getElementById('prodList').appendChild(d);
   calcT();
@@ -607,7 +785,7 @@ function remProd(id) { document.getElementById('pr-'+id)?.remove(); calcT(); }
 function calcT() {
   let t = 0;
   document.querySelectorAll('.prod-row').forEach(r => {
-    t += (parseFloat(r.querySelector('.pq')?.value)||0) * (parseFloat(r.querySelector('.pp')?.value)||0);
+    t += (parseFloat(r.querySelector('.pq')?.value)||0) * (parseMoney(r.querySelector('.pp')?.value)||0);
   });
   document.getElementById('oTotal').textContent = fmt(t);
   return t;
@@ -616,7 +794,7 @@ function getProds() {
   const p = [];
   document.querySelectorAll('.prod-row').forEach(r => {
     const n = r.querySelector('.pn')?.value||'';
-    if (n) p.push(`${n}|${r.querySelector('.pq')?.value||1}|${r.querySelector('.pp')?.value||0}`);
+    if (n) p.push(`${n}|${r.querySelector('.pq')?.value||1}|${parseMoney(r.querySelector('.pp')?.value)||0}`);
   });
   return p.join(', ');
 }
@@ -654,8 +832,11 @@ async function cargarV() {
   try {
     const r = await fetch(SCRIPT_URL+'?action=getVentas');
     const d = await r.json();
-    ventas = d.data || [];
+    const all = d.data || [];
+    ventas = all.filter(v => v.pagado !== GASTO_MARKER);
+    gastosMangara = all.filter(v => v.pagado === GASTO_MARKER);
     renderV(ventas); statsV(ventas);
+    renderGM(gastosMangara); statsGM(gastosMangara);
   } catch(e) { console.error(e); }
 }
 
@@ -718,7 +899,7 @@ function editV(row) {
   document.getElementById('evCli').value = v.cliente;
   document.getElementById('evTel').value = v.telefono||'';
   document.getElementById('evProd').value = v.productos||'';
-  document.getElementById('evTotal').value = v.total||0;
+  document.getElementById('evTotal').value = formatMoney(v.total||0);
   document.getElementById('evPago').value = v.pagado||'Pendiente';
   document.getElementById('evDom').value = v.domicilio||'No';
   document.getElementById('evDir').value = v.direccion||'';
@@ -733,7 +914,7 @@ async function updateV() {
     cliente: document.getElementById('evCli').value,
     telefono: document.getElementById('evTel').value,
     productos: document.getElementById('evProd').value,
-    total: parseFloat(document.getElementById('evTotal').value)||0,
+    total: parseMoney(document.getElementById('evTotal').value)||0,
     pagado: document.getElementById('evPago').value,
     domicilio: document.getElementById('evDom').value,
     direccion: document.getElementById('evDir').value,
@@ -764,6 +945,131 @@ function limpiarV() {
   document.getElementById('prodList').innerHTML = ''; pc=0; addProd();
 }
 
+// ═══ GASTOS MANGARA CRUD ═══
+async function guardarGastoM() {
+  const concepto = document.getElementById('gmConcepto').value.trim();
+  if (!concepto) { toast('Escribe el concepto del gasto','err'); return; }
+  const monto = parseMoney(document.getElementById('gmMonto').value);
+  if (!monto || monto <= 0) { toast('Escribe el monto','err'); return; }
+  const btn = document.getElementById('btnSaveGM');
+  btn.disabled = true; btn.innerHTML = '<span class="loader"></span> Guardando...';
+  try {
+    const r = await fetch(SCRIPT_URL, { method:'POST', headers:{'Content-Type':'text/plain'},
+      body: JSON.stringify({
+        action:'addVenta', fecha: hoy(),
+        cliente: concepto,
+        telefono: '',
+        productos: document.getElementById('gmCat').value,
+        total: monto,
+        pagado: GASTO_MARKER,
+        domicilio: document.getElementById('gmMet').value,
+        direccion: '',
+        notas: document.getElementById('gmNota').value
+      })
+    });
+    const d = await r.json();
+    if (d.status==='ok') { toast('Gasto guardado ✓'); limpiarGM(); cargarV(); }
+    else throw new Error(d.message);
+  } catch(e) { toast('Error: '+e.message,'err'); }
+  btn.disabled = false; btn.textContent = 'Guardar gasto';
+}
+
+function renderGM(data) {
+  const el = document.getElementById('gastosMLista');
+  if (!data.length) { el.innerHTML = '<div class="empty"><div class="ei">💸</div>No hay gastos registrados</div>'; return; }
+  el.innerHTML = data.map(g => {
+    const cat = g.productos || '—';
+    const met = g.domicilio || '—';
+    return `<div class="gm-card">
+      <div class="gm-left">
+        <div class="gm-concepto">${g.cliente}</div>
+        <div class="gm-cat">${cat}</div>
+        <div class="gm-nota">${g.notas||''}</div>
+        <div class="gm-meta">${fechaBonita(g.fecha)} · ${met}</div>
+      </div>
+      <div class="gm-right">
+        <div class="gm-monto">-$${fmt(g.total)}</div>
+        <div class="gm-actions">
+          <button onclick="editGM(${g.row})">✏️</button>
+          <button onclick="delGM(${g.row})" style="color:var(--coral)">🗑</button>
+        </div>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+function statsGM(data) {
+  let totalG = 0;
+  data.forEach(g => totalG += parseFloat(g.total)||0);
+  document.getElementById('sGMT').textContent = '$'+fmt(totalG);
+  document.getElementById('sGMC').textContent = data.length;
+  // Utilidad estimada = ventas totales - gastos mangara
+  let totalV = 0;
+  ventas.forEach(v => totalV += parseFloat(v.total)||0);
+  const util = totalV - totalG;
+  const ue = document.getElementById('sGMU');
+  ue.textContent = (util>=0?'':'-')+'$'+fmt(Math.abs(util));
+  ue.parentElement.className = util >= 0 ? 'st sg' : 'st sr';
+}
+
+function filtrarGM() {
+  const s = document.getElementById('srcGM').value.toLowerCase();
+  const c = document.getElementById('filGMCat').value;
+  renderGM(gastosMangara.filter(g => {
+    return (!s || (g.cliente||'').toLowerCase().includes(s) || (g.notas||'').toLowerCase().includes(s))
+      && (!c || g.productos === c);
+  }));
+}
+
+function editGM(row) {
+  const g = gastosMangara.find(x => x.row === row); if (!g) return;
+  document.getElementById('egmR').value = row;
+  document.getElementById('egmConcepto').value = g.cliente;
+  document.getElementById('egmMonto').value = formatMoney(g.total);
+  document.getElementById('egmCat').value = g.productos||'🥭 Materia prima';
+  document.getElementById('egmMet').value = g.domicilio||'Efectivo';
+  document.getElementById('egmNota').value = g.notas||'';
+  document.getElementById('mGM').classList.add('show');
+}
+
+async function updateGM() {
+  const row = parseInt(document.getElementById('egmR').value);
+  const orig = gastosMangara.find(x => x.row === row);
+  const data = {
+    action:'updateVenta', row: row,
+    fecha: orig?.fecha || hoy(),
+    cliente: document.getElementById('egmConcepto').value,
+    telefono: '',
+    productos: document.getElementById('egmCat').value,
+    total: parseMoney(document.getElementById('egmMonto').value)||0,
+    pagado: GASTO_MARKER,
+    domicilio: document.getElementById('egmMet').value,
+    direccion: '',
+    notas: document.getElementById('egmNota').value
+  };
+  try {
+    const r = await fetch(SCRIPT_URL, { method:'POST', headers:{'Content-Type':'text/plain'}, body:JSON.stringify(data) });
+    const d = await r.json();
+    if (d.status==='ok') { toast('Gasto actualizado ✓'); closeM('mGM'); cargarV(); }
+    else throw new Error(d.message);
+  } catch(e) { toast('Error: '+e.message,'err'); }
+}
+
+async function delGM(row) {
+  if (!confirm('¿Eliminar este gasto?')) return;
+  try {
+    const r = await fetch(SCRIPT_URL, { method:'POST', headers:{'Content-Type':'text/plain'}, body:JSON.stringify({action:'deleteVenta',row}) });
+    const d = await r.json();
+    if (d.status==='ok') { toast('Eliminado'); cargarV(); }
+  } catch(e) { toast('Error','err'); }
+}
+
+function limpiarGM() {
+  ['gmConcepto','gmMonto','gmNota'].forEach(id => document.getElementById(id).value = '');
+  document.getElementById('gmCat').selectedIndex = 0;
+  document.getElementById('gmMet').selectedIndex = 0;
+}
+
 // ═══ FINANZAS CRUD ═══
 function setTipo(t) {
   document.getElementById('fTipo').value = t;
@@ -773,7 +1079,7 @@ function setTipo(t) {
 }
 
 async function guardarFinanza() {
-  const monto = parseFloat(document.getElementById('fMonto').value);
+  const monto = parseMoney(document.getElementById('fMonto').value);
   if (!monto || monto <= 0) { toast('Escribe el monto','err'); return; }
   const btn = document.getElementById('btnSaveF');
   btn.disabled = true; btn.innerHTML = '<span class="loader"></span> Guardando...';
@@ -851,7 +1157,7 @@ function editF(row) {
   document.getElementById('efR').value = row;
   document.getElementById('efTipo').value = f.tipo;
   document.getElementById('efCat').value = f.categoria;
-  document.getElementById('efMonto').value = f.monto;
+  document.getElementById('efMonto').value = formatMoney(f.monto);
   document.getElementById('efResp').value = f.responsable||'';
   document.getElementById('efMet').value = f.metodo||'Efectivo';
   document.getElementById('efDesc').value = f.descripcion||'';
@@ -864,7 +1170,7 @@ async function updateF() {
     fecha: finanzas.find(x=>x.row==document.getElementById('efR').value)?.fecha || hoy(),
     tipo: document.getElementById('efTipo').value,
     categoria: document.getElementById('efCat').value,
-    monto: parseFloat(document.getElementById('efMonto').value)||0,
+    monto: parseMoney(document.getElementById('efMonto').value)||0,
     descripcion: document.getElementById('efDesc').value,
     responsable: document.getElementById('efResp').value,
     metodo: document.getElementById('efMet').value
