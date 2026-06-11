@@ -397,7 +397,7 @@
 
 <!-- HEADER -->
 <header class="header">
-  <h1>🥭 <em>Mangara</em></h1>
+  <h1>🧁 <em>Mangara</em></h1>
   <span class="conn" id="connStatus">Conectando...</span>
 </header>
 
@@ -472,7 +472,7 @@
   <div class="card">
     <div class="card-t" style="color:var(--coral)">💸 Registrar gasto</div>
     <div class="fg"><label>Concepto / Proveedor</label>
-      <input type="text" id="gmConcepto" placeholder="Ej: Compra de mangos, empaque..." autocomplete="off">
+      <input type="text" id="gmConcepto" placeholder="Ej: Harina, mantequilla, empaque..." autocomplete="off">
     </div>
     <div class="row2">
       <div class="fg"><label>Monto ($)</label>
@@ -480,7 +480,7 @@
       </div>
       <div class="fg"><label>Categoría</label>
         <select id="gmCat">
-          <option>🥭 Materia prima</option>
+          <option>🥚 Materia prima</option>
           <option>📦 Empaque</option>
           <option>🚚 Envíos / Transporte</option>
           <option>🧹 Insumos / Limpieza</option>
@@ -507,7 +507,7 @@
       <input type="text" id="srcGM" placeholder="Buscar gasto..." oninput="filtrarGM()">
       <select id="filGMCat" onchange="filtrarGM()">
         <option value="">Todas</option>
-        <option>🥭 Materia prima</option>
+        <option>🥚 Materia prima</option>
         <option>📦 Empaque</option>
         <option>🚚 Envíos / Transporte</option>
         <option>🧹 Insumos / Limpieza</option>
@@ -547,11 +547,11 @@
             <option>💡 Servicios</option><option>🏠 Arriendo</option>
             <option>🏥 Salud</option><option>📚 Educación</option>
             <option>🎬 Entretenimiento</option><option>🛒 Mercado</option>
-            <option>💳 Deudas</option><option>🥭 Inversión Mangara</option>
+            <option>💳 Deudas</option><option>🧁 Inversión Mangara</option>
             <option>📌 Otro gasto</option>
           </optgroup>
           <optgroup label="Ingresos">
-            <option>💼 Salario</option><option>🥭 Ventas Mangara</option>
+            <option>💼 Salario</option><option>🧁 Ventas Mangara</option>
             <option>💻 Freelance</option><option>🤝 Préstamo recibido</option>
             <option>📌 Otro ingreso</option>
           </optgroup>
@@ -631,7 +631,7 @@
       <div class="fg"><label>Monto ($)</label><input type="text" id="egmMonto" inputmode="numeric" oninput="moneyInput(this)"></div>
       <div class="fg"><label>Categoría</label>
         <select id="egmCat">
-          <option>🥭 Materia prima</option>
+          <option>🥚 Materia prima</option>
           <option>📦 Empaque</option>
           <option>🚚 Envíos / Transporte</option>
           <option>🧹 Insumos / Limpieza</option>
@@ -1026,7 +1026,7 @@ function editGM(row) {
   document.getElementById('egmR').value = row;
   document.getElementById('egmConcepto').value = g.cliente;
   document.getElementById('egmMonto').value = formatMoney(g.total);
-  document.getElementById('egmCat').value = g.productos||'🥭 Materia prima';
+  document.getElementById('egmCat').value = g.productos||'🥚 Materia prima';
   document.getElementById('egmMet').value = g.domicilio||'Efectivo';
   document.getElementById('egmNota').value = g.notas||'';
   document.getElementById('mGM').classList.add('show');
